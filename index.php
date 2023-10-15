@@ -45,7 +45,7 @@
         // Display search results and count
         if ($result->num_rows > 0) {
             echo "<h2>Search Results:</h2>";
-            echo "<h3>" . $result->num_rows . " results found</h3>"; // Display the count of results
+            echo "<h3>" . $result->num_rows . " results found for \"$name\", \"$email\"</h3>"; // Display the count of results
             echo "<ul>";
             while ($row = $result->fetch_assoc()) {
                 echo "<li>{$row['full_name']} - {$row['email']} - {$row['display_name']} - {$row['dob']} - {$row['address_first']} - {$row['city']} - {$row['state']} - {$row['zipcode']} - {$row['country']} - {$row['phone']}</li>";
