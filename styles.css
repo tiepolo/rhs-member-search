@@ -22,6 +22,7 @@ form {
 @media (min-width: 1200px) {
     .h2, h2 {
       font-size: 1.5rem;
+      font-weight: bold;
     }
 }
 
