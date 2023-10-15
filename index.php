@@ -2,15 +2,27 @@
 <html>
 <head>
     <title>Search Form</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+</head>
 </head>
 <body>
     <h1>Search Form</h1>
-    <form method="post" action="">
-        <label for="name">Name:</label>
-        <input type="text" name="name" id="name" />
-        <label for="email">Email:</label>
-        <input type="text" name="email" id="email" />
-        <input type="submit" value="Search" />
+    <form method="post" action="" class="row gy-2 gx-3 align-items-center">
+        <div class="col-auto">
+            <div class="input-group">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" name="name" id="name" class="form-control"  />
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="input-group">
+                <label for="email" class="form-label">Email:</label>
+                <input type="text" name="email" id="email" class="form-control" />
+            </div>
+        </div>
+        <div class="col-auto">
+            <input type="submit" value="Search" class="btn btn-primary" />
+        </div>
     </form>
 
 
