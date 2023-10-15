@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Search Form</title>
+    <title>Member Search</title>
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 </head>
 <body>
-    <h1>Search Form</h1>
+    <h1>Member Search</h1>
     <form method="post" action="" class="row gy-2 gx-3 align-items-center">
         <div class="col-auto">
             <label for="name" class="form-label">Name:</label>
@@ -84,11 +84,7 @@
                 echo '<p class="card-text"><strong>Email: </strong>' . $row['email'] . '</p>';
                 echo '<p class="card-text"><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
                 echo '<p class="card-text"><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
-                echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . '</p>';
-                echo '<p class="card-text"><strong>City: </strong>' . $row['city'] . '</p>';
-                echo '<p class="card-text"><strong>State: </strong>' . $row['state'] . '</p>';
-                echo '<p class="card-text"><strong>Zipcode: </strong>' . $row['zipcode'] . '</p>';
-                echo '<p class="card-text"><strong>Country: </strong>' . $row['country'] . '</p>';
+                echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
                 echo '<p class="card-text"><strong>Phone: </strong>' . $row['phone'] . '</p>';
                 echo '</div>'; // Close card-body
                 echo '</div>'; // Close card
