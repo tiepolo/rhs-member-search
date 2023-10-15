@@ -8,8 +8,11 @@
     <form method="post" action="">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" />
+        <label for="email">Email:</label>
+        <input type="text" name="email" id="email" />
         <input type="submit" value="Search" />
     </form>
+
 
     <?php
     // Check if the form was submitted
@@ -29,12 +32,13 @@
 
         // Process the form data
         $name = $_POST["name"];
+        $email = $_POST["email"];
 
         // Log form data to the PHP error log
-        error_log("Name: $name");
+        error_log("Name: $name, Email: $email");
 
-        // Create and execute a SQL query
-        $sql = "SELECT full_name, email, display_name, dob, address_first, city, state, zipcode, country, phone FROM users WHERE full_name LIKE '%$name%'";
+        // Create and execute a SQL query to search for results that match both fields
+        $sql = "SELECT full_name, email, display_name, dob, address_first, city, state, zipcode, country, phone FROM users WHERE full_name LIKE '%$name%' AND email LIKE '%$email%'";
 
         $result = $conn->query($sql);
 
