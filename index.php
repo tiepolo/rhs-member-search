@@ -55,13 +55,24 @@
 
         // Display search results and count
         if ($result->num_rows > 0) {
-            echo "<h2>Search Results:</h2>";
-            echo "<h3>" . $result->num_rows . " results found for \"$name\", \"$email\"</h3>"; // Display the count of results
-            echo "<ul>";
+            echo '<h2>Search Results:</h2>';
+            echo '<h3><strong class="text-danger">' . $result->num_rows . "</strong> results found for \"$name\", \"$email\"</h3>"; // Display the count of results
             while ($row = $result->fetch_assoc()) {
-                echo "<li>{$row['full_name']} - {$row['email']} - {$row['display_name']} - {$row['dob']} - {$row['address_first']} - {$row['city']} - {$row['state']} - {$row['zipcode']} - {$row['country']} - {$row['phone']}</li>";
+                echo '<div class="card">';
+                echo '<div class="card-header custom-purple">' . $row['full_name'] . '</div>';
+                echo '<div class="card-body">';
+                echo '<p class="card-text"><strong>Email: </strong>' . $row['email'] . '</p>';
+                echo '<p class="card-text"><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
+                echo '<p class="card-text"><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
+                echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . '</p>';
+                echo '<p class="card-text"><strong>City: </strong>' . $row['city'] . '</p>';
+                echo '<p class="card-text"><strong>State: </strong>' . $row['state'] . '</p>';
+                echo '<p class="card-text"><strong>Zipcode: </strong>' . $row['zipcode'] . '</p>';
+                echo '<p class="card-text"><strong>Country: </strong>' . $row['country'] . '</p>';
+                echo '<p class="card-text"><strong>Phone: </strong>' . $row['phone'] . '</p>';
+                echo '</div>'; // Close card-body
+                echo '</div>'; // Close card
             }
-            echo "</ul>";
         } else {
             echo "<h2>No results found.</h2>";
         }

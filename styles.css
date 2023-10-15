@@ -5,3 +5,29 @@ body {
 .submit-btn {
     margin-top: 16px;
 }
+
+.card {
+    margin-bottom: 16px;
+}
+
+form {
+    margin-bottom: 64px;
+}
+
+.custom-purple {
+    background-color: #6f42c1 !important;
+    color: white; /* Change the text color for better visibility */
+  }
+
+@media (min-width: 1200px) {
+    .h2, h2 {
+      font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .h3, h3 {
+      font-size: 1.25rem;
+      margin-bottom: 32px;
+    }
+}
