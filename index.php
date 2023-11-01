@@ -64,7 +64,7 @@
             error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
 
             // Create and execute a SQL query to search for results that match both fields and join with the legacy_ids table
-            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, c.chapter_name
+            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, GROUP_CONCAT(c.chapter_name) AS chapter_names
                     FROM users u
                     INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id
                     LEFT JOIN chapter_member cm ON u.mtt_id = cm.author_id
@@ -73,7 +73,8 @@
                     AND u.email LIKE '%$email'
                     AND u.city LIKE '%$city'
                     AND u.state LIKE '%$state'
-                    AND u.country LIKE '%$country'";
+                    AND u.country LIKE '%$country'
+                    GROUP BY u.mtt_id"; // Group by mtt_id to aggregate chapter names
 
             $result = $conn->query($sql);
 
@@ -90,9 +91,14 @@
                     echo '<p class="card-text"><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
                     echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
                     echo '<p class="card-text"><strong>Phone: </strong>' . $row['phone'] . '</p>';
-                    if (!empty($row['chapter_name'])) {
-                        echo '<p class="card-text"><strong>Chapter Name: </strong>' . $row['chapter_name'] . '</p>';
-                    }
+                    if (!empty($row['chapter_names'])) {
+                        $chapterNames = explode(',', $row['chapter_names']);
+                        echo '<p class="card-text"><strong>Chapters:</strong><br />';
+                        foreach ($chapterNames as $chapter) {
+                            echo $chapter . '<br />';
+                        }
+                        echo '</p>';
+                    }                    
                     echo '</div>'; // Close card-body
                     echo '</div>'; // Close card
                 }
