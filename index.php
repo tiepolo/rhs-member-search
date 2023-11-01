@@ -3,6 +3,8 @@
 <head>
     <title>Member Search</title>
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/solid.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 </head>
@@ -22,7 +24,7 @@
             <input type="text" name="city" id="city" class="form-control" />
         </div>
         <div class="col-auto">
-            <label for="state" class="form-label">State:</label>
+            <label for "state" class="form-label">State:</label>
             <input type="text" name="state" id="state" class="form-control" />
         </div>
         <div class="col-auto">
@@ -37,7 +39,6 @@
     </form>
 
     <?php    
-
         // Check if the form was submitted
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Connect to the MySQL database
@@ -64,7 +65,7 @@
             error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
 
             // Create and execute a SQL query to search for results that match both fields and join with the legacy_ids table
-            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, GROUP_CONCAT(c.chapter_name) AS chapter_names
+            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, GROUP_CONCAT(CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') AS chapter_data
                     FROM users u
                     INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id
                     LEFT JOIN chapter_member cm ON u.mtt_id = cm.author_id
@@ -74,7 +75,7 @@
                     AND u.city LIKE '%$city'
                     AND u.state LIKE '%$state'
                     AND u.country LIKE '%$country'
-                    GROUP BY u.mtt_id"; // Group by mtt_id to aggregate chapter names
+                    GROUP BY u.mtt_id"; // Group by mtt_id to aggregate chapter data
 
             $result = $conn->query($sql);
 
@@ -91,14 +92,35 @@
                     echo '<p class="card-text"><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
                     echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
                     echo '<p class="card-text"><strong>Phone: </strong>' . $row['phone'] . '</p>';
-                    if (!empty($row['chapter_names'])) {
-                        $chapterNames = explode(',', $row['chapter_names']);
+                    if (!empty($row['chapter_data'])) {
+                        $chapterData = explode(',', $row['chapter_data']);
+                        $adminChapters = [];
+                        $memberChapters = [];
+                    
+                        // Separate admin and member chapters
+                        foreach ($chapterData as $data) {
+                            list($role, $chapterName) = explode(':', $data);
+                            if ($role === 'admin') {
+                                $adminChapters[] = $chapterName;
+                            } else {
+                                $memberChapters[] = $chapterName;
+                            }
+                        }
+                    
                         echo '<p class="card-text"><strong>Chapters:</strong><br />';
-                        foreach ($chapterNames as $chapter) {
+                    
+                        // Display admin chapters first
+                        foreach ($adminChapters as $chapter) {
+                            echo '<i class="fa-solid fa-crown"></i> ' . $chapter . '<br />';
+                        }
+                    
+                        // Display member chapters next
+                        foreach ($memberChapters as $chapter) {
                             echo $chapter . '<br />';
                         }
+                    
                         echo '</p>';
-                    }                    
+                    }
                     echo '</div>'; // Close card-body
                     echo '</div>'; // Close card
                 }
@@ -108,8 +130,7 @@
 
             // Close the database connection
             $conn->close();
-
         }
-?>
+    ?>
 </body>
 </html>
