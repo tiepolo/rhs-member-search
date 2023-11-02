@@ -39,43 +39,52 @@
     </form>
 
     <?php    
-        // Check if the form was submitted
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            // Connect to the MySQL database
-            $servername = "localhost"; // Change this to your MySQL server address
-            $username = "root"; // Change this to your MySQL username
-            $password = ""; // Set the password to an empty string
-            $database = "rhs"; // Change this to your MySQL database name
+    // Check if the form was submitted
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Connect to the MySQL database
+        $servername = "localhost"; // Change this to your MySQL server address
+        $username = "root"; // Change this to your MySQL username
+        $password = ""; // Set the password to an empty string
+        $database = "rhs"; // Change this to your MySQL database name
 
-            $conn = new mysqli($servername, $username, $password, $database);
+        $conn = new mysqli($servername, $username, $password, $database);
 
-            // Check the database connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
+        // Check the database connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
-            // Process the form data
-            $name = $_POST["name"];
-            $email = $_POST["email"];
-            $city = $_POST["city"];
-            $state = $_POST["state"];
-            $country = $_POST["country"];
+        // Process the form data
+        $name = $_POST["name"];
+        $email = $_POST["email"];
+        $city = $_POST["city"];
+        $state = $_POST["state"];
+        $country = $_POST["country"];
 
-            // Log form data to the PHP error log
-            error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
+        // Log form data to the PHP error log
+        error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
 
-            // Create and execute a SQL query to search for results that match both fields and join with the legacy_ids table
-            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, GROUP_CONCAT(CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') AS chapter_data
-                    FROM users u
-                    INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id
-                    LEFT JOIN chapter_member cm ON u.mtt_id = cm.author_id
-                    LEFT JOIN chapters c ON cm.chapter_id = c.mtt_chapter_id
-                    WHERE u.full_name LIKE '%$name'
-                    AND u.email LIKE '%$email'
-                    AND u.city LIKE '%$city'
-                    AND u.state LIKE '%$state'
-                    AND u.country LIKE '%$country'
-                    GROUP BY u.mtt_id"; // Group by mtt_id to aggregate chapter data
+        // Create and execute a SQL query to search for results that match the fields and join with the legacy_ids table
+        $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, MAX(m.membership_end_at) AS latest_membership_end_at, GROUP_CONCAT(DISTINCT CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') AS chapter_data
+                FROM users u
+                INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id
+                LEFT JOIN chapter_member cm ON u.mtt_id = cm.author_id
+                LEFT JOIN chapters c ON cm.chapter_id = c.mtt_chapter_id
+                LEFT JOIN membership m ON u.mtt_id = m.mtt_id
+                WHERE u.full_name LIKE '%$name'
+                AND u.email LIKE '%$email'
+                AND u.city LIKE '%$city'
+                AND u.state LIKE '%$state'
+                AND u.country LIKE '%$country'
+                GROUP BY u.mtt_id";
+
+        // Execute the query
+        $result = $conn->query($sql);
+
+        // Check if the query failed
+        if (!$result) {
+            die("Query failed: " . $conn->error . " with SQL: " . $sql);
+        }
 
             $result = $conn->query($sql);
 
@@ -85,7 +94,7 @@
                 echo '<h3><strong class="text-danger">' . $result->num_rows . "</strong> results found for <strong>Name:</strong> \"$name\", <strong>Email:</strong> \"$email\", <strong>City:</strong> \"$city\", <strong>State:</strong> \"$state\", <strong>Country:</strong> \"$country\" </h3>"; // Display the count of results
                 while ($row = $result->fetch_assoc()) {
                     echo '<div class="card">';
-                    echo '<div class="card-header custom-purple">' . '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . '</div>';
+                    echo '<div class="card-header custom-purple">' . '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . ' - Membership End Date: ' . $row['latest_membership_end_at'] . '</div>';
                     echo '<div class="card-body">';
                     echo '<p class="card-text"><strong>Email: </strong>' . $row['email'] . '</p>';
                     echo '<p class="card-text"><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
@@ -110,17 +119,21 @@
                         echo '<p class="card-text"><strong>Chapters:</strong><br />';
                     
                         // Display admin chapters first
-                        foreach ($adminChapters as $chapter) {
-                            echo '<i class="fa-solid fa-crown"></i> ' . $chapter . '<br />';
+                        if (!empty($adminChapters)) {
+                            foreach ($adminChapters as $chapter) {
+                                echo '<i class="fa-solid fa-crown"></i> ' . $chapter . '<br />';
+                            }
                         }
                     
                         // Display member chapters next
-                        foreach ($memberChapters as $chapter) {
-                            echo $chapter . '<br />';
+                        if (!empty($memberChapters)) {
+                            foreach ($memberChapters as $chapter) {
+                                echo $chapter . '<br />';
+                            }
                         }
                     
                         echo '</p>';
-                    }
+                    }                    
                     echo '</div>'; // Close card-body
                     echo '</div>'; // Close card
                 }
