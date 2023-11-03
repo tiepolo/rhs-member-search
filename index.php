@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.css">
     <link rel="stylesheet" href="assets/fontawesome/css/solid.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 </head>
 <body>
@@ -91,8 +94,24 @@
             // Display search results and count
             if ($result->num_rows > 0) {
                 echo '<h2><strong>Search Results:</strong></h2>';
-                echo '<h3><strong class="text-danger">' . $result->num_rows . "</strong> results found for <strong>Name:</strong> \"$name\", <strong>Email:</strong> \"$email\", <strong>City:</strong> \"$city\", <strong>State:</strong> \"$state\", <strong>Country:</strong> \"$country\" </h3>"; // Display the count of results
-                while ($row = $result->fetch_assoc()) {
+                echo '<h3><strong class="text-danger">' . $result->num_rows . '</strong> result' . ($result->num_rows === 1 ? '' : 's') . ' found';
+                if (!empty($name)) {
+                    echo ' for <strong>Name:</strong> "' . $name . '"';
+                }
+                if (!empty($email)) {
+                    echo ' for <strong>Email:</strong> "' . $email . '"';
+                }
+                if (!empty($city)) {
+                    echo ' for <strong>City:</strong> "' . $city . '"';
+                }
+                if (!empty($state)) {
+                    echo ' for <strong>State:</strong> "' . $state . '"';
+                }
+                if (!empty($country)) {
+                    echo ' for <strong>Country:</strong> "' . $country . '"';
+                }
+                echo '</h3>';
+                    while ($row = $result->fetch_assoc()) {
                     echo '<div class="card">';
                     echo '<div class="card-header custom-purple">' . '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . ' - Membership End Date: ' . $row['latest_membership_end_at'] . '</div>';
                     echo '<div class="card-body">';

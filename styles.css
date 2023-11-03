@@ -1,5 +1,6 @@
 body {
     padding: 100px;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
 }
 
 .submit-btn {
@@ -19,8 +20,8 @@ form {
     color: white; /* Change the text color for better visibility */
 }
 
-.card-body .card-text i.fa-solid.fa-crown {
-    background-color: #FFA500 !important;
+.fa-crown {
+    color: #FFA500 !important;
 }
 
 @media (min-width: 1200px) {
