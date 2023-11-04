@@ -112,14 +112,12 @@
                 }
                 echo '</h3>';
                     while ($row = $result->fetch_assoc()) {
-                    echo '<div class="card">';
-                    echo '<div class="card-header custom-purple">' . '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . ' - Membership End Date: ' . $row['latest_membership_end_at'] . '</div>';
-                    echo '<div class="card-body">';
-                    echo '<p class="card-text"><strong>Email: </strong>' . $row['email'] . '</p>';
-                    echo '<p class="card-text"><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
-                    echo '<p class="card-text"><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
-                    echo '<p class="card-text"><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
-                    echo '<p class="card-text"><strong>Phone: </strong>' . $row['phone'] . '</p>';
+                    echo '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . ' | <span class="exp-date">Expiration Date: </span>' . $row['latest_membership_end_at'] . '<br /><br />';
+                    echo '<p><strong>Email: </strong>' . $row['email'] . '</p>';
+                    echo '<p><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
+                    echo '<p><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
+                    echo '<p><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
+                    echo '<p><strong>Phone: </strong>' . $row['phone'] . '</p>';
                     if (!empty($row['chapter_data'])) {
                         $chapterData = explode(',', $row['chapter_data']);
                         $adminChapters = [];
@@ -135,7 +133,7 @@
                             }
                         }
                     
-                        echo '<p class="card-text"><strong>Chapters:</strong><br />';
+                        echo '<p><strong>Chapters:</strong><br />';
                     
                         // Display admin chapters first
                         if (!empty($adminChapters)) {
@@ -153,8 +151,6 @@
                     
                         echo '</p>';
                     }                    
-                    echo '</div>'; // Close card-body
-                    echo '</div>'; // Close card
                 }
             } else {
                 echo "<h2>No results found.</h2>";

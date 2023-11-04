@@ -20,6 +20,10 @@ form {
     color: white; /* Change the text color for better visibility */
 }
 
+.exp-date {
+    text-transform: uppercase;
+}
+
 .fa-crown {
     color: #FFA500 !important;
 }
