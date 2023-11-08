@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Member Search</title>
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.css">
     <link rel="stylesheet" href="assets/fontawesome/css/solid.css">
+    <link href="https://cdn.jsdelivr.net/npm/fastbootstrap@2.0.0/dist/css/fastbootstrap.min.css" rel="stylesheet" integrity="sha256-EkS1lBVeD1Dv7HGBICgtEPKeIz4ffoKbo5gRiPvD6/8=" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,29 +17,33 @@
 <body>
     <h1>Member Search</h1>
     <form method="post" action="" class="row gy-2 gx-3 align-items-center">
-        <div class="col-auto">
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" name="name" id="name" class="form-control"  />
+        <div class="row my-5">
+            <div class="col-auto">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" name="name" id="name" class="form-control"  />
+            </div>
+            <div class="col-auto">
+                <label for="email" class="form-label">Email:</label>
+                <input type="text" name="email" id="email" class="form-control" />
+            </div>
         </div>
-        <div class="col-auto">
-            <label for="email" class="form-label">Email:</label>
-            <input type="text" name="email" id="email" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label for="city" class="form-label">City:</label>
-            <input type="text" name="city" id="city" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label for "state" class="form-label">State:</label>
-            <input type="text" name="state" id="state" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label for="country" class="form-label">Country:</label>
-            <input type="text" name="country" id="country" class="form-control" />
+        <div class="row mb-5">
+            <div class="col-auto">
+                <label for="city" class="form-label">City:</label>
+                <input type="text" name="city" id="city" class="form-control" />
+            </div>
+            <div class="col-auto">
+                <label for "state" class="form-label">State:</label>
+                <input type="text" name="state" id="state" class="form-control" />
+            </div>
+            <div class="col-auto">
+                <label for="country" class="form-label">Country:</label>
+                <input type="text" name="country" id="country" class="form-control" />
+            </div>
         </div>        
         <div class="row submit-btn">
             <div class="col-auto">
-                <input type="submit" value="Search" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-search"></i> Search</button>
             </div>
         </div>
     </form>
@@ -112,7 +119,7 @@
                 }
                 echo '</h3>';
                     while ($row = $result->fetch_assoc()) {
-                    echo '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . $row['legacy_id'] . ' | <span class="exp-date">Expiration Date: </span>' . $row['latest_membership_end_at'] . '<br /><br />';
+                    echo '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . '<span class="fs-sm text-secondary">' . $row['legacy_id'] . ' | <span class="text-uppercase fw-medium ls-wider"><strong>Expiration Date:</strong> </span>' . $row['latest_membership_end_at'] . '</span><br /><br />';
                     echo '<p><strong>Email: </strong>' . $row['email'] . '</p>';
                     echo '<p><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
                     echo '<p><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
@@ -138,7 +145,7 @@
                         // Display admin chapters first
                         if (!empty($adminChapters)) {
                             foreach ($adminChapters as $chapter) {
-                                echo '<i class="fa-solid fa-crown"></i> ' . $chapter . '<br />';
+                                echo '<i class="fa-solid fa-crown animate-pulse"></i> ' . $chapter . '<br />';
                             }
                         }
                     
@@ -160,5 +167,6 @@
             $conn->close();
         }
     ?>
+    <script src="https://cdn.jsdelivr.net/npm/fastbootstrap@2.0.0/dist/js/fastbootstrap.min.js" integrity="sha256-o0tNXN7ia0O9G0qNbrzBkEEiQTv+GeW5EO4LjnfDkZk=" crossorigin="anonymous"></script>
 </body>
 </html>

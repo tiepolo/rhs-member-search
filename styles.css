@@ -20,8 +20,12 @@ form {
     color: white; /* Change the text color for better visibility */
 }
 
-.exp-date {
-    text-transform: uppercase;
+.text-sp-1 {
+    letter-spacing: 20px !important;
+}
+
+.text-sm {
+    font-size: 1rem;
 }
 
 .fa-crown {
