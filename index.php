@@ -88,7 +88,11 @@
         $totalResult = $conn->query($totalSql);
         $totalRow = $totalResult->fetch_assoc();
         $totalItems = $totalRow['total'];
-        $totalPages = ceil($totalItems / $itemsPerPage);       
+        $totalPages = ceil($totalItems / $itemsPerPage);
+        
+        // Calculate the starting and ending item numbers
+        $startItemNumber = ($page - 1) * $itemsPerPage + 1;
+        $endItemNumber = min($page * $itemsPerPage, $totalItems);
 
         // Log form data to the PHP error log
         error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
@@ -117,23 +121,24 @@
             // Display search results and count
             if ($result->num_rows > 0) {
                 echo '<h2><strong>Search Results:</strong></h2>';
-                echo '<h3><strong class="text-danger">' . $result->num_rows . '</strong> result' . ($result->num_rows === 1 ? '' : 's') . ' found';
+                echo '<h3><strong class="text-danger">' . $totalItems . '</strong> result' . ($totalItems === 1 ? '' : 's') . ' found';
                 if (!empty($name)) {
-                    echo ' for <strong>Name:</strong> "' . $name . '"';
+                    echo ' for <strong>Name:</strong> "' . htmlspecialchars($name) . '"';
                 }
                 if (!empty($email)) {
-                    echo ' for <strong>Email:</strong> "' . $email . '"';
+                    echo ' for <strong>Email:</strong> "' . htmlspecialchars($email) . '"';
                 }
                 if (!empty($city)) {
-                    echo ' for <strong>City:</strong> "' . $city . '"';
+                    echo ' for <strong>City:</strong> "' . htmlspecialchars($city) . '"';
                 }
                 if (!empty($state)) {
-                    echo ' for <strong>State:</strong> "' . $state . '"';
+                    echo ' for <strong>State:</strong> "' . htmlspecialchars($state) . '"';
                 }
                 if (!empty($country)) {
-                    echo ' for <strong>Country:</strong> "' . $country . '"';
+                    echo ' for <strong>Country:</strong> "' . htmlspecialchars($country) . '"';
                 }
                 echo '</h3>';
+                echo '<h3>Showing items ' . $startItemNumber . '-' . $endItemNumber . '</h3>';                
                     while ($row = $result->fetch_assoc()) {
                     $crownIcon = ($row['membership_type'] === 'Queen') ? '<i class="fa-solid fa-crown"></i> ' : '';
                     echo '<div class="mb-10">';
