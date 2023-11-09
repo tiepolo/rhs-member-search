@@ -14,8 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 </head>
-<body>
-    <h1>Member Search</h1>
+<body class="bg-light-subtle">
+    <div class="container border border-light border-2 rounded-4 bg-white p-10">
+    <h1 class="mb-10">Member Search</h1>
     <form method="get" action="" class="row gy-2 gx-3 align-items-center">
         <div class="row my-5">
             <div class="col-auto">
@@ -84,7 +85,6 @@
                     AND u.state LIKE '%$state%'
                     AND u.country LIKE '%$country%'";
 
-        $totalSql = "SELECT COUNT(DISTINCT u.mtt_id) AS total FROM users u WHERE u.full_name LIKE '%$name%' AND u.email LIKE '%$email%' AND u.city LIKE '%$city%' AND u.state LIKE '%$state%' AND u.country LIKE '%$country%'";
         $totalResult = $conn->query($totalSql);
         $totalRow = $totalResult->fetch_assoc();
         $totalItems = $totalRow['total'];
@@ -139,20 +139,23 @@
                     echo '<div class="mb-10">';
                     echo '<span class="fs-5">' . $crownIcon . '<strong>' . $row['full_name'] . '</strong></span><br />' . '<span class="fs-sm text-secondary">' . $row['legacy_id'] . ' | <span class="fw-medium"><strong class="text-primary ls-wider">Exp:</strong> ' . 
                     date('F d, Y', strtotime($row['latest_membership_end_at'])) . '</span><br /><br />';
-                    echo '<p><strong>Email: </strong>' . $row['email'] . '</p>';
-                    echo '<p><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
-                    echo '<p><strong>Date of Birth: </strong>' . date('F d, Y', strtotime($row['dob'])) . '</p>';
-                    echo '<p><strong>Address: </strong>';
-                    $addressParts = [
-                        $row['address_first'],
-                        $row['city'],
-                        $row['state'],
-                        $row['zipcode'],
-                        $row['country']
-                    ];
-                    $filteredAddress = array_filter($addressParts, function($value) { return !empty($value) && $value !== null; });
-                    echo implode(', ', $filteredAddress) . '</p>';
-                    echo '<p><strong>Phone: </strong>' . $row['phone'] . '</p>';
+                    if (!empty($row['email'])) {
+                        echo '<p><strong>Email: </strong>' . htmlspecialchars($row['email']) . '</p>';
+                    }
+                    if (!empty($row['display_name'])) {
+                        echo '<p><strong>Display Name: </strong>' . htmlspecialchars($row['display_name']) . '</p>';
+                    }
+                    if (!empty($row['dob'])) {
+                        echo '<p><strong>Date of Birth: </strong>' . date('F d, Y', strtotime($row['dob'])) . '</p>';
+                    }
+                    if (!empty($row['address_first']) || !empty($row['city']) || !empty($row['state']) || !empty($row['zipcode']) || !empty($row['country'])) {
+                        echo '<p><strong>Address: </strong>';
+                        $addressParts = array_filter([$row['address_first'], $row['city'], $row['state'], $row['zipcode'], $row['country']]);
+                        echo htmlspecialchars(implode(', ', $addressParts)) . '</p>';
+                    }
+                    if (!empty($row['phone'])) {
+                        echo '<p><strong>Phone: </strong>' . htmlspecialchars($row['phone']) . '</p>';
+                    }
                     if (!empty($row['chapter_data'])) {
                         $chapterData = explode(',', $row['chapter_data']);
                         $adminChapters = [];
@@ -254,7 +257,7 @@
         echo '</nav>';   
 
     ?>
-
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/fastbootstrap@2.0.0/dist/js/fastbootstrap.min.js" integrity="sha256-o0tNXN7ia0O9G0qNbrzBkEEiQTv+GeW5EO4LjnfDkZk=" crossorigin="anonymous"></script>
 </body>
 </html>
