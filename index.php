@@ -75,7 +75,7 @@
         error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
 
         // Create and execute a SQL query to search for results that match the fields and join with the legacy_ids table
-        $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, MAX(m.membership_end_at) AS latest_membership_end_at, GROUP_CONCAT(DISTINCT CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') AS chapter_data
+        $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, u.membership_type, MAX(m.membership_end_at) AS latest_membership_end_at, GROUP_CONCAT(DISTINCT CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') AS chapter_data
                 FROM users u
                 INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id
                 LEFT JOIN chapter_member cm ON u.mtt_id = cm.author_id
@@ -119,7 +119,9 @@
                 }
                 echo '</h3>';
                     while ($row = $result->fetch_assoc()) {
-                    echo '<span class="fs-5"><strong>' . $row['full_name'] . '</strong></span><br />' . '<span class="fs-sm text-secondary">' . $row['legacy_id'] . ' | <span class="text-uppercase fw-medium ls-wider"><strong>Expiration Date:</strong> </span>' . $row['latest_membership_end_at'] . '</span><br /><br />';
+                    $crownIcon = ($row['membership_type'] === 'Queen') ? '<i class="fa-solid fa-crown"></i> ' : '';
+                    echo '<span class="fs-5">' . $crownIcon . '<strong>' . $row['full_name'] . '</strong></span><br />' . '<span class="fs-sm text-secondary">' . $row['legacy_id'] . ' | <span class="fw-medium"><strong class="text-uppercase ls-wider">Expiration Date:</strong> ' . 
+                    date('F d, Y', strtotime($row['latest_membership_end_at'])) . '</span><br /><br />';
                     echo '<p><strong>Email: </strong>' . $row['email'] . '</p>';
                     echo '<p><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
                     echo '<p><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
