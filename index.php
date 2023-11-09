@@ -141,8 +141,17 @@
                     date('F d, Y', strtotime($row['latest_membership_end_at'])) . '</span><br /><br />';
                     echo '<p><strong>Email: </strong>' . $row['email'] . '</p>';
                     echo '<p><strong>Display Name: </strong>' . $row['display_name'] . '</p>';
-                    echo '<p><strong>Date of Birth: </strong>' . $row['dob'] . '</p>';
-                    echo '<p><strong>Address: </strong>' . $row['address_first'] . ', ' . $row['city'] . ', ' . $row['state'] . ', ' . $row['zipcode'] . ', ' . $row['country'] . '</p>';
+                    echo '<p><strong>Date of Birth: </strong>' . date('F d, Y', strtotime($row['dob'])) . '</p>';
+                    echo '<p><strong>Address: </strong>';
+                    $addressParts = [
+                        $row['address_first'],
+                        $row['city'],
+                        $row['state'],
+                        $row['zipcode'],
+                        $row['country']
+                    ];
+                    $filteredAddress = array_filter($addressParts, function($value) { return !empty($value) && $value !== null; });
+                    echo implode(', ', $filteredAddress) . '</p>';
                     echo '<p><strong>Phone: </strong>' . $row['phone'] . '</p>';
                     if (!empty($row['chapter_data'])) {
                         $chapterData = explode(',', $row['chapter_data']);
