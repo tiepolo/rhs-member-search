@@ -216,7 +216,7 @@
 
         // Start the pagination
         echo '<nav aria-label="Page navigation example">';
-        echo '<ul class="pagination">';
+        echo '<ul class="pagination justify-content-center">';
 
         // Previous button
         $disabledClass = ($page <= 1) ? ' disabled' : '';
