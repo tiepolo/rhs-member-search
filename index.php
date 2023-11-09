@@ -208,11 +208,30 @@
         echo "<li class='page-item{$disabledClass}'><a class='page-link' href='?$queryString'>Previous</a></li>";
 
         // Page number buttons
-        for ($i = 1; $i <= $totalPages; $i++) {
+        $startPage = max($page - 1, 1);
+        $endPage = min($page + 1, $totalPages);
+
+        // Show first page and ellipses if needed
+        if ($startPage > 1) {
+            echo "<li class='page-item'><a class='page-link' href='?" . http_build_query(['page' => 1] + $searchParams) . "'>1</a></li>";
+            if ($startPage > 2) {
+                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+            }
+        }
+
+        for ($i = $startPage; $i <= $endPage; $i++) {
             $activeClass = ($page == $i) ? ' active' : '';
             $searchParams['page'] = $i; // Update page number for each page button
             $queryString = http_build_query($searchParams);
             echo "<li class='page-item{$activeClass}'><a class='page-link' href='?$queryString'>{$i}</a></li>";
+        }
+
+        // Show ellipses and last page if needed
+        if ($endPage < $totalPages) {
+            if ($endPage < $totalPages - 1) {
+                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+            }
+            echo "<li class='page-item'><a class='page-link' href='?" . http_build_query(['page' => $totalPages] + $searchParams) . "'>$totalPages</a></li>";
         }
 
         // Next button
@@ -223,7 +242,7 @@
 
         // End the pagination
         echo '</ul>';
-        echo '</nav>';      
+        echo '</nav>';   
 
     ?>
 
