@@ -15,7 +15,7 @@
 </head>
 </head>
 <body class="bg-light-subtle">
-    <div class="container border border-light border-2 rounded-4 bg-white p-10">
+    <div class="container border border-light-subtle border-2 rounded-4 bg-white p-10 shadow-lg">
     <h1 class="mb-10">Member Search</h1>
     <form method="get" action="" class="row gy-2 gx-3 align-items-center">
         <div class="row my-5">
@@ -49,35 +49,34 @@
         </div>
     </form>
 
-    <?php    
-    // Check if the form was submitted
-    if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        // Connect to the MySQL database
-        $servername = "localhost"; // Change this to your MySQL server address
-        $username = "root"; // Change this to your MySQL username
-        $password = ""; // Set the password to an empty string
-        $database = "rhs"; // Change this to your MySQL database name
-        $conn = new mysqli($servername, $username, $password, $database);
+    <?php
+    // Enable exception handling for mysqli
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-        // Check the database connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+    try {
+        // Check if the form was submitted
+        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+            // Connect to the MySQL database
+            $servername = "localhost"; // Change this to your MySQL server address
+            $username = "root"; // Change this to your MySQL username
+            $password = ""; // Set the password to an empty string
+            $database = "rhs"; // Change this to your MySQL database name
+            $conn = new mysqli($servername, $username, $password, $database);
 
-        // Process the form data
-        $name = $_GET["name"] ?? '';
-        $email = $_GET["email"] ?? '';
-        $city = $_GET["city"] ?? '';
-        $state = $_GET["state"] ?? '';
-        $country = $_GET["country"] ?? '';
+            // Process the form data
+            $name = $_GET["name"] ?? "";
+            $email = $_GET["email"] ?? "";
+            $city = $_GET["city"] ?? "";
+            $state = $_GET["state"] ?? "";
+            $country = $_GET["country"] ?? "";
 
-        // Pagination variables
-        $itemsPerPage = 10; // Define how many items per page
-        $page = $_GET['page'] ?? 1; // Get the current page number from the URL
-        $offset = ($page - 1) * $itemsPerPage; // Calculate the offset        
+            // Pagination variables
+            $itemsPerPage = 10; // Define how many items per page
+            $page = $_GET["page"] ?? 1; // Get the current page number from the URL
+            $offset = ($page - 1) * $itemsPerPage; // Calculate the offset
 
-        // Calculate total number of pages
-        $totalSql = "SELECT COUNT(DISTINCT u.mtt_id) AS total
+            // Calculate total number of pages
+            $totalSql = "SELECT COUNT(DISTINCT u.mtt_id) AS total
                     FROM users u
                     WHERE u.full_name LIKE '%$name%'
                     AND u.email LIKE '%$email%'
@@ -85,20 +84,22 @@
                     AND u.state LIKE '%$state%'
                     AND u.country LIKE '%$country%'";
 
-        $totalResult = $conn->query($totalSql);
-        $totalRow = $totalResult->fetch_assoc();
-        $totalItems = $totalRow['total'];
-        $totalPages = ceil($totalItems / $itemsPerPage);
-        
-        // Calculate the starting and ending item numbers
-        $startItemNumber = ($page - 1) * $itemsPerPage + 1;
-        $endItemNumber = min($page * $itemsPerPage, $totalItems);
+            $totalResult = $conn->query($totalSql);
+            $totalRow = $totalResult->fetch_assoc();
+            $totalItems = $totalRow["total"];
+            $totalPages = ceil($totalItems / $itemsPerPage);
 
-        // Log form data to the PHP error log
-        error_log("Name: $name, Email: $email, City: $city, State: $state, Country: $country");
+            // Calculate the starting and ending item numbers
+            $startItemNumber = ($page - 1) * $itemsPerPage + 1;
+            $endItemNumber = min($page * $itemsPerPage, $totalItems);
 
-        // Create and execute a SQL query to search for results that match the fields and join with the legacy_ids table
-        $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, u.membership_type, MAX(m.membership_end_at) AS latest_membership_end_at, GROUP_CONCAT(DISTINCT CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') 
+            // Log form data to the PHP error log
+            error_log(
+                "Name: $name, Email: $email, City: $city, State: $state, Country: $country"
+            );
+
+            // Create and execute a SQL query to search for results that match the fields and join with the legacy_ids table
+            $sql = "SELECT u.full_name, u.email, u.display_name, u.dob, u.address_first, u.city, u.state, u.zipcode, u.country, u.phone, l.legacy_id, u.membership_type, MAX(m.membership_end_at) AS latest_membership_end_at, GROUP_CONCAT(DISTINCT CONCAT(cm.role, ':', c.chapter_name) SEPARATOR ',') 
                 AS chapter_data 
                 FROM users u 
                 INNER JOIN legacy_ids l ON u.mtt_id = l.mtt_id 
@@ -108,93 +109,146 @@
                 WHERE u.full_name LIKE '%$name%' AND u.email LIKE '%$email%' AND u.city LIKE '%$city%' AND u.state LIKE '%$state%' AND u.country LIKE '%$country%' 
                 GROUP BY u.mtt_id LIMIT $itemsPerPage OFFSET $offset";
 
-        // Execute the query
-        $result = $conn->query($sql);
-
-        // Check if the query failed
-        if (!$result) {
-            die("Query failed: " . $conn->error . " with SQL: " . $sql);
-        }
-
+            // Execute the query
             $result = $conn->query($sql);
+
+            // Check if the query failed
+            if (!$result) {
+                die("Query failed: " . $conn->error . " with SQL: " . $sql);
+            }
 
             // Display search results and count
             if ($result->num_rows > 0) {
-                echo '<h2><strong>Search Results:</strong></h2>';
-                echo '<h3><strong class="text-danger">' . $totalItems . '</strong> result' . ($totalItems === 1 ? '' : 's') . ' found';
+                echo "<h2><strong>Search Results:</strong></h2>";
+                echo '<h3><strong class="text-danger">' .
+                    $totalItems .
+                    "</strong> result" .
+                    ($totalItems === 1 ? "" : "s") .
+                    " found";
                 if (!empty($name)) {
-                    echo ' for <strong>Name:</strong> "' . htmlspecialchars($name) . '"';
+                    echo ' for <strong>Name:</strong> "' .
+                        htmlspecialchars($name) .
+                        '"';
                 }
                 if (!empty($email)) {
-                    echo ' for <strong>Email:</strong> "' . htmlspecialchars($email) . '"';
+                    echo ' for <strong>Email:</strong> "' .
+                        htmlspecialchars($email) .
+                        '"';
                 }
                 if (!empty($city)) {
-                    echo ' for <strong>City:</strong> "' . htmlspecialchars($city) . '"';
+                    echo ' for <strong>City:</strong> "' .
+                        htmlspecialchars($city) .
+                        '"';
                 }
                 if (!empty($state)) {
-                    echo ' for <strong>State:</strong> "' . htmlspecialchars($state) . '"';
+                    echo ' for <strong>State:</strong> "' .
+                        htmlspecialchars($state) .
+                        '"';
                 }
                 if (!empty($country)) {
-                    echo ' for <strong>Country:</strong> "' . htmlspecialchars($country) . '"';
+                    echo ' for <strong>Country:</strong> "' .
+                        htmlspecialchars($country) .
+                        '"';
                 }
-                echo '</h3>';
-                echo '<h3>Showing items ' . $startItemNumber . '-' . $endItemNumber . '</h3>';                
-                    while ($row = $result->fetch_assoc()) {
-                    $crownIcon = ($row['membership_type'] === 'Queen') ? '<i class="fa-solid fa-crown"></i> ' : '';
+                echo "</h3>";
+                echo "<h3>Showing items " .
+                    $startItemNumber .
+                    "-" .
+                    $endItemNumber .
+                    "</h3>";
+                while ($row = $result->fetch_assoc()) {
+                    $crownIcon =
+                        $row["membership_type"] === "Queen"
+                            ? '<i class="fa-solid fa-crown"></i> '
+                            : "";
                     echo '<div class="mb-10">';
-                    echo '<span class="fs-5">' . $crownIcon . '<strong>' . $row['full_name'] . '</strong></span><br />' . '<span class="fs-sm text-secondary">' . $row['legacy_id'] . ' | <span class="fw-medium"><strong class="text-primary ls-wider">Exp:</strong> ' . 
-                    date('F d, Y', strtotime($row['latest_membership_end_at'])) . '</span><br /><br />';
-                    if (!empty($row['email'])) {
-                        echo '<p><strong>Email: </strong>' . htmlspecialchars($row['email']) . '</p>';
+                    echo '<span class="fs-5">' .
+                        $crownIcon .
+                        "<strong>" .
+                        $row["full_name"] .
+                        "</strong></span><br />" .
+                        '<span class="fs-sm text-secondary">' .
+                        $row["legacy_id"] .
+                        ' | <span class="fw-medium"><strong class="text-primary ls-wider">Exp:</strong> ' .
+                        date(
+                            "F d, Y",
+                            strtotime($row["latest_membership_end_at"])
+                        ) .
+                        "</span><br /><br />";
+                    if (!empty($row["email"])) {
+                        echo "<p><strong>Email: </strong>" .
+                            htmlspecialchars($row["email"]) .
+                            "</p>";
                     }
-                    if (!empty($row['display_name'])) {
-                        echo '<p><strong>Display Name: </strong>' . htmlspecialchars($row['display_name']) . '</p>';
+                    if (!empty($row["display_name"])) {
+                        echo "<p><strong>Display Name: </strong>" .
+                            htmlspecialchars($row["display_name"]) .
+                            "</p>";
                     }
-                    if (!empty($row['dob'])) {
-                        echo '<p><strong>Date of Birth: </strong>' . date('F d, Y', strtotime($row['dob'])) . '</p>';
+                    if (!empty($row["dob"])) {
+                        echo "<p><strong>Date of Birth: </strong>" .
+                            date("F d, Y", strtotime($row["dob"])) .
+                            "</p>";
                     }
-                    if (!empty($row['address_first']) || !empty($row['city']) || !empty($row['state']) || !empty($row['zipcode']) || !empty($row['country'])) {
-                        echo '<p><strong>Address: </strong>';
-                        $addressParts = array_filter([$row['address_first'], $row['city'], $row['state'], $row['zipcode'], $row['country']]);
-                        echo htmlspecialchars(implode(', ', $addressParts)) . '</p>';
+                    if (
+                        !empty($row["address_first"]) ||
+                        !empty($row["city"]) ||
+                        !empty($row["state"]) ||
+                        !empty($row["zipcode"]) ||
+                        !empty($row["country"])
+                    ) {
+                        echo "<p><strong>Address: </strong>";
+                        $addressParts = array_filter([
+                            $row["address_first"],
+                            $row["city"],
+                            $row["state"],
+                            $row["zipcode"],
+                            $row["country"],
+                        ]);
+                        echo htmlspecialchars(implode(", ", $addressParts)) .
+                            "</p>";
                     }
-                    if (!empty($row['phone'])) {
-                        echo '<p><strong>Phone: </strong>' . htmlspecialchars($row['phone']) . '</p>';
+                    if (!empty($row["phone"])) {
+                        echo "<p><strong>Phone: </strong>" .
+                            htmlspecialchars($row["phone"]) .
+                            "</p>";
                     }
-                    if (!empty($row['chapter_data'])) {
-                        $chapterData = explode(',', $row['chapter_data']);
+                    if (!empty($row["chapter_data"])) {
+                        $chapterData = explode(",", $row["chapter_data"]);
                         $adminChapters = [];
                         $memberChapters = [];
-                    
+
                         // Separate admin and member chapters
                         foreach ($chapterData as $data) {
-                            list($role, $chapterName) = explode(':', $data);
-                            if ($role === 'admin') {
+                            list($role, $chapterName) = explode(":", $data);
+                            if ($role === "admin") {
                                 $adminChapters[] = $chapterName;
                             } else {
                                 $memberChapters[] = $chapterName;
                             }
                         }
-                    
-                        echo '<p><strong>Chapters:</strong><br />';
-                    
+
+                        echo "<p><strong>Chapters:</strong><br />";
+
                         // Display admin chapters first
                         if (!empty($adminChapters)) {
                             foreach ($adminChapters as $chapter) {
-                                echo '<i class="fa-solid fa-crown animate-pulse"></i> ' . $chapter . '<br />';
+                                echo '<i class="fa-solid fa-crown animate-pulse"></i> ' .
+                                    $chapter .
+                                    "<br />";
                             }
                         }
-                    
+
                         // Display member chapters next
                         if (!empty($memberChapters)) {
                             foreach ($memberChapters as $chapter) {
-                                echo $chapter . '<br />';
+                                echo $chapter . "<br />";
                             }
                         }
-                    
-                        echo '</p>';
-                    } 
-                    echo '</div>';                   
+
+                        echo "</p>";
+                    }
+                    echo "</div>";
                 }
             } else {
                 echo "<h2>No results found.</h2>";
@@ -203,64 +257,70 @@
             // Close the database connection
             $conn->close();
         }
+    } catch (mysqli_sql_exception $exception) {
+        die("Connection failed: " . $exception->getMessage());
+    }
 
-        // Collect search parameters
-        $searchParams = [
-            'name' => $name,
-            'email' => $email,
-            'city' => $city,
-            'state' => $state,
-            'country' => $country,
-            // include any other parameters here
-        ];
+    // Collect search parameters
+    $searchParams = [
+        "name" => $name,
+        "email" => $email,
+        "city" => $city,
+        "state" => $state,
+        "country" => $country,
+        // include any other parameters here
+    ];
 
-        // Start the pagination
-        echo '<nav aria-label="Page navigation example">';
-        echo '<ul class="pagination justify-content-center">';
+    // Start the pagination
+    echo '<nav aria-label="Page navigation example">';
+    echo '<ul class="pagination justify-content-center">';
 
-        // Previous button
-        $disabledClass = ($page <= 1) ? ' disabled' : '';
-        $searchParams['page'] = max(1, $page - 1); // Update page number for the Previous button
+    // Previous button
+    $disabledClass = $page <= 1 ? " disabled" : "";
+    $searchParams["page"] = max(1, $page - 1); // Update page number for the Previous button
+    $queryString = http_build_query($searchParams);
+    echo "<li class='page-item{$disabledClass}'><a class='page-link' href='?$queryString'>Previous</a></li>";
+
+    // Page number buttons
+    $startPage = max($page - 1, 1);
+    $endPage = min($page + 1, $totalPages);
+
+    // Show first page and ellipses if needed
+    if ($startPage > 1) {
+        echo "<li class='page-item'><a class='page-link' href='?" .
+            http_build_query(["page" => 1] + $searchParams) .
+            "'>1</a></li>";
+        if ($startPage > 2) {
+            echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+        }
+    }
+
+    for ($i = $startPage; $i <= $endPage; $i++) {
+        $activeClass = $page == $i ? " active" : "";
+        $searchParams["page"] = $i; // Update page number for each page button
         $queryString = http_build_query($searchParams);
-        echo "<li class='page-item{$disabledClass}'><a class='page-link' href='?$queryString'>Previous</a></li>";
+        echo "<li class='page-item{$activeClass}'><a class='page-link' href='?$queryString'>{$i}</a></li>";
+    }
 
-        // Page number buttons
-        $startPage = max($page - 1, 1);
-        $endPage = min($page + 1, $totalPages);
-
-        // Show first page and ellipses if needed
-        if ($startPage > 1) {
-            echo "<li class='page-item'><a class='page-link' href='?" . http_build_query(['page' => 1] + $searchParams) . "'>1</a></li>";
-            if ($startPage > 2) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
+    // Show ellipses and last page if needed
+    if ($endPage < $totalPages) {
+        if ($endPage < $totalPages - 1) {
+            echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
         }
+        echo "<li class='page-item'><a class='page-link' href='?" .
+            http_build_query(["page" => $totalPages] + $searchParams) .
+            "'>$totalPages</a></li>";
+    }
 
-        for ($i = $startPage; $i <= $endPage; $i++) {
-            $activeClass = ($page == $i) ? ' active' : '';
-            $searchParams['page'] = $i; // Update page number for each page button
-            $queryString = http_build_query($searchParams);
-            echo "<li class='page-item{$activeClass}'><a class='page-link' href='?$queryString'>{$i}</a></li>";
-        }
+    // Next button
+    $disabledClass = $page >= $totalPages ? " disabled" : "";
+    $searchParams["page"] = min($totalPages, $page + 1); // Update page number for the Next button
+    $queryString = http_build_query($searchParams);
+    echo "<li class='page-item{$disabledClass}'><a class='page-link' href='?$queryString'>Next</a></li>";
 
-        // Show ellipses and last page if needed
-        if ($endPage < $totalPages) {
-            if ($endPage < $totalPages - 1) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
-            echo "<li class='page-item'><a class='page-link' href='?" . http_build_query(['page' => $totalPages] + $searchParams) . "'>$totalPages</a></li>";
-        }
-
-        // Next button
-        $disabledClass = ($page >= $totalPages) ? ' disabled' : '';
-        $searchParams['page'] = min($totalPages, $page + 1); // Update page number for the Next button
-        $queryString = http_build_query($searchParams);
-        echo "<li class='page-item{$disabledClass}'><a class='page-link' href='?$queryString'>Next</a></li>";
-
-        // End the pagination
-        echo '</ul>';
-        echo '</nav>';   
-
+    // End the pagination
+    echo "</ul>";
+    echo "</nav>";
     ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/fastbootstrap@2.0.0/dist/js/fastbootstrap.min.js" integrity="sha256-o0tNXN7ia0O9G0qNbrzBkEEiQTv+GeW5EO4LjnfDkZk=" crossorigin="anonymous"></script>
