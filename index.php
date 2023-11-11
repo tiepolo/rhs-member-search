@@ -156,25 +156,54 @@
                     "-" .
                     $endItemNumber .
                     "</h3>";
+
+                // Start of user info
                 while ($row = $result->fetch_assoc()) {
+                    $userId = htmlspecialchars($row["mtt_id"]); // Ensure this has a unique value for each row
                     $crownIcon =
                         $row["membership_type"] === "Queen"
                             ? '<i class="fa-solid fa-crown"></i> '
                             : "";
+
+                    // User's name as a link to trigger the modal
                     echo '<div class="mb-10">';
-                    echo '<span class="fs-5">' .
-                        $crownIcon .
-                        "<strong>" .
-                        $row["full_name"] .
-                        "</strong></span><br />" .
-                        '<span class="fs-sm text-secondary">' .
-                        $row["legacy_id"] .
-                        ' | <span class="fw-medium"><strong class="text-primary ls-wider">Exp:</strong> ' .
+                    echo '<span class="fs-5">' . $crownIcon;
+                    echo '<a href="#" data-bs-toggle="modal" data-bs-target="#userModal' .
+                        htmlspecialchars($row["legacy_id"]) .
+                        '">' .
+                        htmlspecialchars($row["full_name"]) .
+                        "</a>";
+                    echo "</span><br />";
+                    echo '<span class="fs-sm text-secondary">' .
+                        htmlspecialchars($row["legacy_id"]);
+                    echo ' | <span class="fw-medium"><strong class="text-primary ls-wider">Exp:</strong> ' .
                         date(
                             "F d, Y",
                             strtotime($row["latest_membership_end_at"])
                         ) .
-                        "</span><br /><br />";
+                        "</span>";
+                    echo "</span><br /><br />";
+                    echo "</div>";
+
+                    // The Modal
+                    echo '<div class="modal fade" id="userModal' .
+                        htmlspecialchars($row["legacy_id"]) .
+                        '" tabindex="-1" aria-labelledby="userModalLabel' .
+                        htmlspecialchars($row["legacy_id"]) .
+                        '" aria-hidden="true">';
+                    echo '<div class="modal-dialog">';
+                    echo '<div class="modal-content">';
+                    echo '<div class="modal-header">';
+                    echo '<h5 class="modal-title" id="userModalLabel' .
+                        htmlspecialchars($row["legacy_id"]) .
+                        '">' .
+                        htmlspecialchars($row["full_name"]) .
+                        "</h5>";
+                    echo '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+                    echo "</div>";
+                    echo '<div class="modal-body">';
+
+                    // Include only if not null or empty
                     if (!empty($row["email"])) {
                         echo "<p><strong>Email: </strong>" .
                             htmlspecialchars($row["email"]) .
@@ -197,16 +226,29 @@
                         !empty($row["zipcode"]) ||
                         !empty($row["country"])
                     ) {
-                        echo "<p><strong>Address: </strong>";
-                        $addressParts = array_filter([
-                            $row["address_first"],
-                            $row["city"],
-                            $row["state"],
-                            $row["zipcode"],
-                            $row["country"],
-                        ]);
-                        echo htmlspecialchars(implode(", ", $addressParts)) .
-                            "</p>";
+                        echo "<p><strong>Address:</strong><br />";
+                        if (!empty($row["address_first"])) {
+                            echo htmlspecialchars($row["address_first"]) .
+                                "<br />";
+                        }
+                        if (
+                            !empty($row["city"]) ||
+                            !empty($row["state"]) ||
+                            !empty($row["zipcode"])
+                        ) {
+                            $cityStateZip = array_filter([
+                                $row["city"],
+                                $row["state"],
+                                $row["zipcode"],
+                            ]);
+                            echo htmlspecialchars(
+                                implode(", ", $cityStateZip)
+                            ) . "<br />";
+                        }
+                        if (!empty($row["country"])) {
+                            echo htmlspecialchars($row["country"]);
+                        }
+                        echo "</p>";
                     }
                     if (!empty($row["phone"])) {
                         echo "<p><strong>Phone: </strong>" .
@@ -214,42 +256,24 @@
                             "</p>";
                     }
                     if (!empty($row["chapter_data"])) {
-                        $chapterData = explode(",", $row["chapter_data"]);
-                        $adminChapters = [];
-                        $memberChapters = [];
-
-                        // Separate admin and member chapters
-                        foreach ($chapterData as $data) {
-                            list($role, $chapterName) = explode(":", $data);
-                            if ($role === "admin") {
-                                $adminChapters[] = $chapterName;
-                            } else {
-                                $memberChapters[] = $chapterName;
-                            }
-                        }
-
                         echo "<p><strong>Chapters:</strong><br />";
-
-                        // Display admin chapters first
-                        if (!empty($adminChapters)) {
-                            foreach ($adminChapters as $chapter) {
-                                echo '<i class="fa-solid fa-crown animate-pulse"></i> ' .
-                                    $chapter .
-                                    "<br />";
+                        $chapterData = explode(",", $row["chapter_data"]);
+                        foreach ($chapterData as $chapter) {
+                            list($role, $chapterName) = explode(":", $chapter);
+                            if ($role === "admin") {
+                                echo '<i class="fa-solid fa-crown animate-pulse"></i> ';
                             }
+                            echo htmlspecialchars($chapterName) . "<br />";
                         }
-
-                        // Display member chapters next
-                        if (!empty($memberChapters)) {
-                            foreach ($memberChapters as $chapter) {
-                                echo $chapter . "<br />";
-                            }
-                        }
-
                         echo "</p>";
                     }
-                    echo "</div>";
+
+                    echo "</div>"; // End of modal-body
+                    echo "</div>"; // End of modal-content
+                    echo "</div>"; // End of modal-dialog
+                    echo "</div>"; // End of modal
                 }
+                // End of user info
             } else {
                 echo "<h2>No results found.</h2>";
             }
